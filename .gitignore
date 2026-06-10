@@ -20,7 +20,7 @@ ENV/
 *.sqlite3
 *.db
 /media/
-/staticfiles/*
+**/staticfiles/
 /static/collected/
 local_settings.py
 
