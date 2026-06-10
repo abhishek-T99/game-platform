@@ -1,12 +1,14 @@
 name: hello-ci
 on:
   push:
+    branches:
+      - main
     paths:
       - "services/hello/**"
       - ".github/workflows/hello-ci.yml"
 
 jobs:
-  build-test:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,10 +20,21 @@ jobs:
         run: |
           pip install uv
           uv pip install --system -r requirements.txt
+      - name: Lint
+        working-directory: services/hello
+        run: |
+          ruff check .
+          ruff format --check .
       - name: Run tests
         working-directory: services/hello
         env:
           DATABASE_URL: "sqlite:///test.db"
-        run: pytest -q
+        run: pytest --tb=short -v
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t hello:ci services/hello
