@@ -7,5 +7,6 @@ psycopg[binary]
 structlog
 pytest
 pytest-django
+pre-commit
 opentelemetry-distro
 opentelemetry-exporter-otlp
