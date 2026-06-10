@@ -1,0 +1,85 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - hello
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: hello
+      POSTGRES_PASSWORD: hello
+      POSTGRES_DB: hello
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"      # management UI (guest/guest)
+
+  tempo:
+    image: grafana/tempo:2.6.0
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ./infra/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+    ports:
+      - "3200:3200"        # Tempo API
+      - "4317:4317"        # OTLP gRPC
+      - "4318:4318"        # OTLP HTTP
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana-oss:11.2.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_AUTH_DISABLE_LOGIN_FORM: "false"
+    volumes:
+      - ./infra/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    ports:
+      - "3000:3000"        # Grafana UI
+    depends_on:
+      - tempo
+    networks:
+      - backend
+
+  hello:
+    build: ./services/hello
+    volumes:
+      - ./services/hello:/app
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DATABASE_URL: postgres://hello:hello@postgres:5432/hello
+      OTEL_SERVICE_NAME: hello
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
+    depends_on:
+      - postgres
+      - tempo
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge

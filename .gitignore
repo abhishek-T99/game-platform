@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Django
+*.sqlite3
+*.db
+/media/
+/staticfiles/*
+/static/collected/
+local_settings.py
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Logs
+*.log
+logs/
+
+# Docker
+.dockerignore
+
+# Terraform / infra secrets
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# TLS certificates
+infra/nginx/certs/*.pem
+
+# Distribution / packaging
+*.tar.gz
+*.zip
