@@ -14,6 +14,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-django = ["django"]
 known-first-party = ["api", "hello"]
-section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
