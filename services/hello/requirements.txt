@@ -8,5 +8,6 @@ structlog
 pytest
 pytest-django
 pre-commit
+ruff
 opentelemetry-distro
 opentelemetry-exporter-otlp
